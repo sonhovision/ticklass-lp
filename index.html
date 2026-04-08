@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TICKLASS | スクール向けチケット管理システム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0f;
+  --bg2: #141418;
+  --bg3: #1c1c22;
+  --accent: #6c63ff;
+  --accent2: #a78bfa;
+  --accent-glow: rgba(108,99,255,0.18);
+  --white: #ffffff;
+  --text: #e8e8f0;
+  --muted: #7a7a90;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(108,99,255,0.25);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 48px;display:flex;justify-content:space-between;align-items:center;background:rgba(13,13,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--white);letter-spacing:0.02em;}
+.nav-logo span{color:var(--accent2);}
+.nav-links{display:flex;gap:32px;align-items:center;}
+.nav-links a{color:var(--muted);font-size:13px;text-decoration:none;transition:color 0.2s;font-weight:400;}
+.nav-links a:hover{color:var(--white);}
+.nav-cta{background:var(--accent);color:var(--white);padding:10px 22px;border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;transition:all 0.2s;letter-spacing:0.02em;}
+.nav-cta:hover{background:var(--accent2);transform:translateY(-1px);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 48px 80px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;pointer-events:none;}
+.hero-bg::before{content:'';position:absolute;top:10%;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(108,99,255,0.12) 0%,transparent 70%);border-radius:50%;}
+.hero-bg::after{content:'';position:absolute;bottom:-100px;left:20%;width:300px;height:300px;background:radial-gradient(circle,rgba(167,139,250,0.07) 0%,transparent 70%);border-radius:50%;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(108,99,255,0.1);border:1px solid var(--border2);border-radius:100px;padding:6px 16px;font-size:11px;color:var(--accent2);letter-spacing:0.12em;font-weight:500;margin-bottom:32px;text-transform:uppercase;}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(42px,6vw,80px);font-weight:800;line-height:1.05;color:var(--white);margin-bottom:8px;letter-spacing:-0.02em;}
+.hero-title .grad{background:linear-gradient(135deg,var(--accent2),#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:clamp(15px,2vw,18px);color:var(--muted);max-width:560px;margin:24px auto 48px;line-height:1.75;font-weight:300;}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:80px;}
+.btn-primary{background:var(--accent);color:var(--white);padding:16px 36px;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;transition:all 0.25s;letter-spacing:0.04em;display:inline-block;box-shadow:0 0 32px rgba(108,99,255,0.35);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 48px rgba(108,99,255,0.5);}
+.btn-ghost{background:transparent;color:var(--text);padding:16px 36px;border-radius:8px;font-size:14px;font-weight:400;text-decoration:none;border:1px solid var(--border);transition:all 0.2s;display:inline-block;}
+.btn-ghost:hover{border-color:var(--border2);color:var(--accent2);}
+
+/* GENRE STRIP */
+.genre-strip{display:flex;justify-content:center;gap:0;flex-wrap:wrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);position:relative;z-index:1;}
+.genre-item{padding:20px 32px;display:flex;flex-direction:column;align-items:center;gap:6px;border-right:1px solid var(--border);flex:1;min-width:120px;}
+.genre-item:last-child{border-right:none;}
+.genre-icon{font-size:22px;}
+.genre-label{font-size:11px;color:var(--muted);letter-spacing:0.08em;font-weight:400;}
+
+/* STATS */
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border);}
+.stat-item{padding:40px 48px;border-right:1px solid var(--border);}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;color:var(--white);line-height:1;}
+.stat-num span{font-size:22px;color:var(--accent2);}
+.stat-label{font-size:12px;color:var(--muted);margin-top:6px;letter-spacing:0.04em;}
+
+/* SECTION */
+.section{padding:100px 80px;}
+.section-eyebrow{font-size:11px;letter-spacing:0.18em;color:var(--accent2);text-transform:uppercase;font-weight:500;margin-bottom:14px;}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(28px,3.5vw,46px);font-weight:800;color:var(--white);line-height:1.15;margin-bottom:20px;letter-spacing:-0.01em;}
+.section-desc{font-size:15px;color:var(--muted);max-width:520px;line-height:1.8;font-weight:300;}
+
+/* PAIN */
+.pain-section{background:var(--bg2);}
+.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin-top:56px;}
+.pain-card{background:var(--bg2);padding:40px 32px;transition:background 0.2s;}
+.pain-card:hover{background:var(--bg3);}
+.pain-num{font-family:'Syne',sans-serif;font-size:48px;font-weight:800;color:var(--border);line-height:1;margin-bottom:16px;}
+.pain-h{font-size:16px;font-weight:700;color:var(--white);margin-bottom:10px;}
+.pain-p{font-size:13px;line-height:1.8;color:var(--muted);}
+.pain-solved{margin-top:20px;font-size:11px;letter-spacing:0.1em;color:var(--accent2);font-weight:500;}
+
+/* FEATURES */
+.features-section{background:var(--bg);}
+.features-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-top:60px;}
+.feat-list{display:flex;flex-direction:column;gap:0;}
+.feat-item{padding:28px 0;border-bottom:1px solid var(--border);display:flex;gap:20px;cursor:default;}
+.feat-item:first-child{padding-top:0;}
+.feat-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:8px;flex-shrink:0;box-shadow:0 0 12px var(--accent);}
+.feat-body{}
+.feat-h{font-size:16px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.feat-p{font-size:13px;line-height:1.8;color:var(--muted);}
+.feat-tag{display:inline-block;margin-top:10px;font-size:10px;letter-spacing:0.1em;background:rgba(108,99,255,0.1);border:1px solid var(--border2);color:var(--accent2);padding:3px 10px;border-radius:4px;}
+
+/* MOCKUP */
+.mockup-wrap{position:sticky;top:100px;}
+.mockup{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.mockup-topbar{background:var(--bg3);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+.mockup-title{font-size:13px;font-weight:500;color:var(--white);}
+.mockup-live{font-size:10px;color:var(--accent2);letter-spacing:0.1em;display:flex;align-items:center;gap:5px;}
+.mockup-live::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent2);animation:blink 1.5s infinite;}
+.mockup-body{padding:20px;}
+.mk-tabs{display:flex;gap:4px;margin-bottom:16px;}
+.mk-tab{padding:6px 14px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;transition:all 0.2s;}
+.mk-tab.active{background:var(--accent);color:var(--white);}
+.mk-tab:not(.active){color:var(--muted);}
+.mk-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.mk-stat{background:var(--bg3);border-radius:6px;padding:12px;text-align:center;}
+.mk-stat-n{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--white);}
+.mk-stat-l{font-size:9px;color:var(--muted);margin-top:2px;letter-spacing:0.04em;}
+.mk-member-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg3);border-radius:6px;margin-bottom:6px;}
+.mk-member-info{display:flex;align-items:center;gap:10px;}
+.mk-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--white);}
+.mk-name{font-size:12px;color:var(--text);}
+.mk-genre{font-size:10px;color:var(--muted);}
+.mk-tickets{display:flex;gap:3px;align-items:center;}
+.mk-tick{width:6px;height:6px;border-radius:1px;}
+.mk-tick.on{background:var(--accent2);}
+.mk-tick.off{background:var(--border);}
+.mk-count{font-size:11px;color:var(--accent2);margin-left:6px;font-weight:500;}
+
+/* COST */
+.cost-section{background:var(--bg2);position:relative;overflow:hidden;}
+.cost-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(108,99,255,0.06) 0%,transparent 70%);pointer-events:none;}
+.cost-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px;position:relative;z-index:1;}
+.cost-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:28px 20px;transition:border-color 0.2s;}
+.cost-card:hover{border-color:var(--border2);}
+.cost-icon{font-size:20px;margin-bottom:14px;}
+.cost-service{font-size:10px;letter-spacing:0.12em;color:var(--muted);margin-bottom:6px;text-transform:uppercase;}
+.cost-price{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--white);line-height:1;}
+.cost-price small{font-size:13px;color:var(--muted);font-family:'Noto Sans JP',sans-serif;font-weight:300;}
+.cost-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6;}
+.cost-total{margin-top:32px;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:32px 40px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;}
+.cost-total-label{font-size:15px;color:var(--muted);}
+.cost-total-sub{font-size:12px;color:var(--muted);opacity:0.6;margin-top:4px;}
+.cost-total-num{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;color:var(--accent2);line-height:1;}
+
+/* FLOW */
+.flow-section{background:var(--bg);}
+.flow-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:56px;position:relative;}
+.flow-grid::before{content:'';position:absolute;top:28px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.3;}
+.flow-step{padding:0 16px;text-align:center;}
+.flow-circle{width:56px;height:56px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent2);position:relative;z-index:1;background:var(--bg);}
+.flow-h{font-size:15px;font-weight:700;color:var(--white);margin-bottom:8px;}
+.flow-p{font-size:12px;line-height:1.75;color:var(--muted);}
+.flow-day{margin-top:12px;font-size:10px;letter-spacing:0.1em;color:var(--accent2);font-weight:500;}
+
+/* CTA */
+.cta-section{background:var(--bg2);padding:120px 80px;text-align:center;position:relative;overflow:hidden;}
+.cta-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent2),transparent);}
+.cta-bg-blur{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(108,99,255,0.1) 0%,transparent 70%);pointer-events:none;}
+.cta-title{font-family:'Syne',sans-serif;font-size:clamp(32px,4vw,54px);font-weight:800;color:var(--white);margin-bottom:16px;letter-spacing:-0.01em;position:relative;z-index:1;}
+.cta-sub{font-size:15px;color:var(--muted);margin-bottom:56px;position:relative;z-index:1;font-weight:300;}
+.cta-form{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1;}
+.cta-form input,.cta-form select,.cta-form textarea{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px 18px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:14px;outline:none;transition:border 0.2s;width:100%;font-weight:300;}
+.cta-form input::placeholder,.cta-form textarea::placeholder{color:var(--muted);}
+.cta-form input:focus,.cta-form select:focus,.cta-form textarea:focus{border-color:var(--border2);}
+.cta-form select{appearance:none;cursor:pointer;}
+.cta-form select option{background:var(--bg3);}
+.cta-submit{background:var(--accent);color:var(--white);border:none;padding:16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.06em;box-shadow:0 0 32px rgba(108,99,255,0.3);}
+.cta-submit:hover{background:var(--accent2);transform:translateY(-1px);}
+.cta-note{font-size:11px;color:var(--muted);margin-top:8px;}
+
+/* FOOTER */
+footer{background:var(--bg);border-top:1px solid var(--border);padding:32px 80px;display:flex;justify-content:space-between;align-items:center;}
+.footer-logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--muted);}
+.footer-logo span{color:var(--accent2);}
+.footer-copy{font-size:11px;color:var(--muted);opacity:0.5;letter-spacing:0.04em;}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{animation:fadeUp 0.7s ease both;}
+.d1{animation-delay:0.1s;}.d2{animation-delay:0.2s;}.d3{animation-delay:0.3s;}.d4{animation-delay:0.4s;}.d5{animation-delay:0.5s;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:16px 24px;}
+  .nav-links{display:none;}
+  .hero{padding:100px 24px 60px;}
+  .genre-item{padding:16px 16px;}
+  .stats-bar{grid-template-columns:1fr;}
+  .stat-item{border-right:none;border-bottom:1px solid var(--border);padding:28px 32px;}
+  .section{padding:64px 24px;}
+  .pain-grid{grid-template-columns:1fr;}
+  .features-layout{grid-template-columns:1fr;}
+  .mockup-wrap{position:static;}
+  .cost-grid{grid-template-columns:1fr 1fr;}
+  .flow-grid{grid-template-columns:1fr 1fr;gap:32px;}
+  .flow-grid::before{display:none;}
+  .cta-section{padding:80px 24px;}
+  footer{flex-direction:column;gap:12px;padding:32px 24px;text-align:center;}
+  .cost-total{flex-direction:column;gap:12px;text-align:center;padding:24px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">TICK<span>LASS</span></div>
+  <div class="nav-links">
+    <a href="#features">機能</a>
+    <a href="#cost">料金</a>
+    <a href="#flow">導入の流れ</a>
+  </div>
+  <a href="#contact" class="nav-cta">無料相談する</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-badge fade-up">Lesson Management System</div>
+  <h1 class="hero-title fade-up d1">チケット管理を、<br><span class="grad">もっとシンプルに。</span></h1>
+  <p class="hero-sub fade-up d2">ジャンルを問わず、あらゆるスクール・教室の受講チケットをクラウドで一元管理。月額費用ゼロで、今日から導入できます。</p>
+  <div class="hero-actions fade-up d3">
+    <a href="#contact" class="btn-primary">無料デモを見る</a>
+    <a href="#features" class="btn-ghost">機能を確認する</a>
+  </div>
+</section>
+
+<!-- GENRE STRIP -->
+<div class="genre-strip">
+  <div class="genre-item"><div class="genre-icon">⛳</div><div class="genre-label">ゴルフ</div></div>
+  <div class="genre-item"><div class="genre-icon">🎾</div><div class="genre-label">テニス</div></div>
+  <div class="genre-item"><div class="genre-icon">🏊</div><div class="genre-label">水泳</div></div>
+  <div class="genre-item"><div class="genre-icon">🎹</div><div class="genre-label">ピアノ</div></div>
+  <div class="genre-item"><div class="genre-icon">🍳</div><div class="genre-label">料理教室</div></div>
+  <div class="genre-item"><div class="genre-icon">🗣️</div><div class="genre-label">語学スクール</div></div>
+  <div class="genre-item"><div class="genre-icon">💪</div><div class="genre-label">フィットネス</div></div>
+  <div class="genre-item"><div class="genre-icon">＋</div><div class="genre-label">その他全て</div></div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">¥<span>0</span></div>
+    <div class="stat-label">月額ランニングコスト</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">3<span>日</span></div>
+    <div class="stat-label">最短導入期間</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">100<span>%</span></div>
+    <div class="stat-label">クラウドで完結</div>
+  </div>
+</div>
+
+<!-- PAIN -->
+<section class="section pain-section">
+  <div class="section-eyebrow">よくある課題</div>
+  <h2 class="section-title">スクール運営の<br>「面倒」を解消する</h2>
+  <div class="pain-grid">
+    <div class="pain-card">
+      <div class="pain-num">01</div>
+      <div class="pain-h">手書き・Excel管理の限界</div>
+      <p class="pain-p">紙台帳やExcelでは残枚数の把握に時間がかかり、複数スタッフ間での共有もできない。転記ミスやトラブルの温床になっている。</p>
+      <div class="pain-solved">✦ SOLVED</div>
+    </div>
+    <div class="pain-card">
+      <div class="pain-num">02</div>
+      <div class="pain-h">月末の集計作業が重労働</div>
+      <p class="pain-p">受講回数の集計、売上計算、在庫確認――毎月数時間を費やす煩雑な事務作業。本来レッスンに使うべき時間が奪われている。</p>
+      <div class="pain-solved">✦ SOLVED</div>
+    </div>
+    <div class="pain-card">
+      <div class="pain-num">03</div>
+      <div class="pain-h">高額な専用システムの負担</div>
+      <p class="pain-p">市販の予約・管理システムは月額1〜5万円が相場。個人教室や小規模スクールには重すぎるコストで、導入を諦めているケースが多い。</p>
+      <div class="pain-solved">✦ SOLVED</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section features-section" id="features">
+  <div class="section-eyebrow">主要機能</div>
+  <h2 class="section-title">必要な機能だけを、<br>シンプルに。</h2>
+  <div class="features-layout">
+    <div class="feat-list">
+      <div class="feat-item">
+        <div class="feat-dot"></div>
+        <div class="feat-body">
+          <div class="feat-h">チケット残数のリアルタイム管理</div>
+          <p class="feat-p">Google Sheetsをデータベースに、スマホからでも即座に残枚数を確認・更新。複数スタッフが同時アクセスしても競合しない設計。</p>
+          <span class="feat-tag">REAL-TIME SYNC</span>
+        </div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-dot"></div>
+        <div class="feat-body">
+          <div class="feat-h">自動集計・アラート通知</div>
+          <p class="feat-p">チケット残数が設定枚数を下回ったら自動でメール通知。月末レポートも自動生成され、集計ミスをゼロにします。</p>
+          <span class="feat-tag">AUTO NOTIFY</span>
+        </div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-dot"></div>
+        <div class="feat-body">
+          <div class="feat-h">会員・受講履歴の一元管理</div>
+          <p class="feat-p">受講者情報・購入履歴・残チケット数を一画面で確認。ジャンル・クラス別の絞り込みにも対応しています。</p>
+          <span class="feat-tag">ALL-IN-ONE</span>
+        </div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-dot"></div>
+        <div class="feat-body">
+          <div class="feat-h">スマホ完結・直感的UI</div>
+          <p class="feat-p">レッスン中でもスマホ1台で操作完了。ITに不慣れなスタッフでもすぐ使いこなせるよう、操作を極限まで絞り込んだ設計。</p>
+          <span class="feat-tag">MOBILE FIRST</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mockup-wrap">
+      <div class="mockup">
+        <div class="mockup-topbar">
+          <div class="mockup-title">受講者管理ダッシュボード</div>
+          <div class="mockup-live">LIVE</div>
+        </div>
+        <div class="mockup-body">
+          <div class="mk-tabs">
+            <div class="mk-tab active">全員</div>
+            <div class="mk-tab">残少</div>
+            <div class="mk-tab">今月</div>
+          </div>
+          <div class="mk-stat-row">
+            <div class="mk-stat"><div class="mk-stat-n">38</div><div class="mk-stat-l">受講者数</div></div>
+            <div class="mk-stat"><div class="mk-stat-n">214</div><div class="mk-stat-l">残チケット</div></div>
+            <div class="mk-stat"><div class="mk-stat-n">4</div><div class="mk-stat-l">残少アラート</div></div>
+          </div>
+          <div class="mk-member-row">
+            <div class="mk-member-info">
+              <div class="mk-avatar" style="background:#6c63ff;">田</div>
+              <div><div class="mk-name">田中 太郎</div><div class="mk-genre">ゴルフ・初級</div></div>
+            </div>
+            <div class="mk-tickets">
+              <div class="mk-tick on"></div><div class="mk-tick on"></div><div class="mk-tick on"></div>
+              <div class="mk-tick off"></div><div class="mk-tick off"></div>
+              <div class="mk-count">残3</div>
+            </div>
+          </div>
+          <div class="mk-member-row">
+            <div class="mk-member-info">
+              <div class="mk-avatar" style="background:#a78bfa;">佐</div>
+              <div><div class="mk-name">佐藤 花子</div><div class="mk-genre">ピアノ・中級</div></div>
+            </div>
+            <div class="mk-tickets">
+              <div class="mk-tick on"></div><div class="mk-tick on"></div><div class="mk-tick on"></div><div class="mk-tick on"></div>
+              <div class="mk-tick off"></div>
+              <div class="mk-count">残4</div>
+            </div>
+          </div>
+          <div class="mk-member-row">
+            <div class="mk-member-info">
+              <div class="mk-avatar" style="background:#f59e0b;">鈴</div>
+              <div><div class="mk-name">鈴木 一郎</div><div class="mk-genre">テニス・上級</div></div>
+            </div>
+            <div class="mk-tickets">
+              <div class="mk-tick on"></div>
+              <div class="mk-tick off"></div><div class="mk-tick off"></div><div class="mk-tick off"></div><div class="mk-tick off"></div>
+              <div class="mk-count" style="color:#f59e0b;">残1</div>
+            </div>
+          </div>
+          <div class="mk-member-row">
+            <div class="mk-member-info">
+              <div class="mk-avatar" style="background:#10b981;">山</div>
+              <div><div class="mk-name">山田 次郎</div><div class="mk-genre">英会話・初級</div></div>
+            </div>
+            <div class="mk-tickets">
+              <div class="mk-tick on"></div><div class="mk-tick on"></div><div class="mk-tick on"></div><div class="mk-tick on"></div><div class="mk-tick on"></div>
+              <div class="mk-count">残5</div>
+            </div>
+          </div>
+          <div class="mk-member-row">
+            <div class="mk-member-info">
+              <div class="mk-avatar" style="background:#ec4899;">中</div>
+              <div><div class="mk-name">中村 美咲</div><div class="mk-genre">料理教室・週1</div></div>
+            </div>
+            <div class="mk-tickets">
+              <div class="mk-tick on"></div>
+              <div class="mk-tick off"></div><div class="mk-tick off"></div><div class="mk-tick off"></div><div class="mk-tick off"></div>
+              <div class="mk-count" style="color:#f59e0b;">残1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COST -->
+<section class="section cost-section" id="cost">
+  <div class="section-eyebrow">コスト比較</div>
+  <h2 class="section-title">月額ランニングコスト、<br>ほぼゼロ。</h2>
+  <p class="section-desc">使用するサービスはすべて無料枠内で運用できます。スクールが成長しても、追加費用は一切発生しません。</p>
+  <div class="cost-grid">
+    <div class="cost-card">
+      <div class="cost-icon">🌐</div>
+      <div class="cost-service">Hosting</div>
+      <div class="cost-price">¥0 <small>/月</small></div>
+      <div class="cost-note">GitHub Pages<br>完全無料で安定運用</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-icon">📊</div>
+      <div class="cost-service">Database</div>
+      <div class="cost-price">¥0 <small>/月</small></div>
+      <div class="cost-note">Google Sheets<br>Googleアカウントで利用可</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-icon">⚙️</div>
+      <div class="cost-service">Automation</div>
+      <div class="cost-price">¥0 <small>/月</small></div>
+      <div class="cost-note">Google Apps Script<br>無料枠内で自動化</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-icon">⚡</div>
+      <div class="cost-service">Edge Worker</div>
+      <div class="cost-price">¥0 <small>/月</small></div>
+      <div class="cost-note">Cloudflare Workers<br>10万リクエスト/日 無料</div>
+    </div>
+  </div>
+  <div class="cost-total">
+    <div>
+      <div class="cost-total-label">月額ランニングコスト合計</div>
+      <div class="cost-total-sub">初期導入費のみ。維持費は永続的にゼロ。</div>
+    </div>
+    <div class="cost-total-num">¥0<small style="font-size:20px;color:var(--muted);font-family:'Noto Sans JP';font-weight:300;">/月</small></div>
+  </div>
+</section>
+
+<!-- FLOW -->
+<section class="section flow-section" id="flow">
+  <div class="section-eyebrow">導入の流れ</div>
+  <h2 class="section-title">最短3日で<br>稼働開始できます。</h2>
+  <div class="flow-grid">
+    <div class="flow-step">
+      <div class="flow-circle">1</div>
+      <div class="flow-h">ヒアリング</div>
+      <p class="flow-p">現在の管理方法・受講者数・ジャンルをオンラインでヒアリングします。</p>
+      <div class="flow-day">DAY 1</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-circle">2</div>
+      <div class="flow-h">カスタマイズ</div>
+      <p class="flow-p">スクールの料金体系・ジャンル・スタッフ構成に合わせてシステムを設定。</p>
+      <div class="flow-day">DAY 1–2</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-circle">3</div>
+      <div class="flow-h">データ移行</div>
+      <p class="flow-p">既存の会員情報・チケット残数を新システムへ安全に移行します。</p>
+      <div class="flow-day">DAY 2–3</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-circle">4</div>
+      <div class="flow-h">稼働・サポート</div>
+      <p class="flow-p">操作レクチャー後に本番稼働。導入後の疑問にも随時対応します。</p>
+      <div class="flow-day">DAY 3</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="cta-bg-blur"></div>
+  <div class="section-eyebrow">お問い合わせ</div>
+  <h2 class="cta-title">まず、話を聞いてみる。</h2>
+  <p class="cta-sub">資料送付・オンラインデモも承ります。しつこい営業は一切しません。</p>
+  <form class="cta-form" onsubmit="handleSubmit(event)">
+    <input type="text" placeholder="教室名・お名前" required>
+    <input type="email" placeholder="メールアドレス" required>
+    <select>
+      <option value="" disabled selected>レッスンのジャンル</option>
+      <option>スポーツ（ゴルフ・テニス・水泳 等）</option>
+      <option>音楽（ピアノ・ギター・ボイス 等）</option>
+      <option>フィットネス・ヨガ・ダンス</option>
+      <option>語学スクール</option>
+      <option>料理・手芸・アート教室</option>
+      <option>その他</option>
+    </select>
+    <select>
+      <option value="" disabled selected>会員数の目安</option>
+      <option>〜30名</option>
+      <option>31〜100名</option>
+      <option>101〜300名</option>
+      <option>300名以上</option>
+    </select>
+    <textarea placeholder="ご質問・ご要望（任意）" rows="3"></textarea>
+    <button type="submit" class="cta-submit">無料相談を申し込む →</button>
+    <div class="cta-note">返信は通常1営業日以内。</div>
+  </form>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">TICK<span>LASS</span></div>
+  <div class="footer-copy">© 2025 SONHO Vision. All rights reserved.</div>
+</footer>
+
+<script>
+function handleSubmit(e){
+  e.preventDefault();
+  const btn=e.target.querySelector('.cta-submit');
+  btn.textContent='送信しました。ありがとうございます。';
+  btn.style.background='#10b981';
+  btn.disabled=true;
+  e.target.reset();
+}
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(el=>{
+    if(el.isIntersecting){el.target.style.opacity='1';el.target.style.transform='none';}
+  });
+},{threshold:0.12});
+document.querySelectorAll('.pain-card,.feat-item,.cost-card,.flow-step').forEach(el=>{
+  el.style.opacity='0';el.style.transform='translateY(16px)';
+  el.style.transition='opacity 0.5s ease,transform 0.5s ease';
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
