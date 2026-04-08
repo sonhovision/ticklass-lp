@@ -501,24 +501,39 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:32px 80px
 </footer>
 
 <script>
-function handleSubmit(e){
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxJOnbSagpmTWR-atgY3-PIMWtQ9MCjiJ0B6RtBbQNbhP-AZzHcDYi6JhWC8M3I-MeG/exec";
+
+function handleSubmit(e) {
   e.preventDefault();
-  const btn=e.target.querySelector('.cta-submit');
-  btn.textContent='送信しました。ありがとうございます。';
-  btn.style.background='#10b981';
-  btn.disabled=true;
-  e.target.reset();
-}
-const obs=new IntersectionObserver(entries=>{
-  entries.forEach(el=>{
-    if(el.isIntersecting){el.target.style.opacity='1';el.target.style.transform='none';}
+  const btn = e.target.querySelector('.cta-submit');
+  const inputs = e.target.querySelectorAll('input, select, textarea');
+
+  btn.textContent = '送信中...';
+  btn.disabled = true;
+
+  const data = {
+    name:    inputs[0].value,
+    email:   inputs[1].value,
+    genre:   inputs[2].value,
+    members: inputs[3].value,
+    message: inputs[4].value,
+  };
+
+  fetch(GAS_URL, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+  .then(() => {
+    btn.textContent = '送信しました。ありがとうございます。';
+    btn.style.background = '#10b981';
+    e.target.reset();
+  })
+  .catch(() => {
+    btn.textContent = 'エラーが発生しました。メールでご連絡ください。';
+    btn.style.background = '#ef4444';
+    btn.disabled = false;
   });
-},{threshold:0.12});
-document.querySelectorAll('.pain-card,.feat-item,.cost-card,.flow-step').forEach(el=>{
-  el.style.opacity='0';el.style.transform='translateY(16px)';
-  el.style.transition='opacity 0.5s ease,transform 0.5s ease';
-  obs.observe(el);
-});
+}
 </script>
 </body>
 </html>
